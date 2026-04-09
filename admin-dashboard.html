@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - St. Barnabas College</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; }
+        
+        :root {
+            --primary-color: #4ecff7;
+            --primary-dark: #2ba0c4;
+            --primary-light: #7dd9f9;
+        }
+        
+        .sidebar {
+            position: fixed; left: 0; top: 0; width: 280px; height: 100%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            padding: 2rem; color: white; overflow-y: auto;
+            z-index: 100;
+        }
+        .logo { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .logo h2 { font-size: 1.2rem; font-weight: 500; }
+        .logo p { font-size: 0.8rem; opacity: 0.8; }
+        
+        .admin-profile { text-align: center; margin-bottom: 2rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 15px; }
+        .profile-image-container { position: relative; width: 80px; height: 80px; margin: 0 auto; cursor: pointer; }
+        .profile-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid white; }
+        .profile-avatar-placeholder { width: 100%; height: 100%; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 3px solid white; }
+        .edit-profile-icon { position: absolute; bottom: 0; right: 0; background: var(--primary-color); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; }
+        .admin-name { font-weight: 600; margin-top: 0.75rem; }
+        .admin-title { font-size: 0.8rem; opacity: 0.9; margin-top: 0.25rem; }
+        
+        .nav-menu { list-style: none; margin-top: 1rem; }
+        .nav-item { margin-bottom: 0.5rem; }
+        .nav-link { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; text-decoration: none; color: rgba(255,255,255,0.9); border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+        .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.2); }
+        .nav-link i { width: 24px; }
+        
+        .main-content { margin-left: 280px; padding: 2rem; min-height: 100vh; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.25rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .stat-icon { width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .stat-icon i { font-size: 1.5rem; color: white; }
+        .data-table { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-top: 1rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #e9ecef; }
+        th { background: #f8f9fa; font-weight: 600; }
+        
+        .status-badge { padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; }
+        .status-unread { background: #fff3cd; color: #856404; }
+        .status-read { background: #d4edda; color: #155724; }
+        
+        .action-btn { padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem; margin: 0 0.25rem; }
+        .reply-btn { background: var(--primary-color); color: white; }
+        .reply-btn:hover { background: var(--primary-dark); }
+        .delete-btn { background: #dc3545; color: white; }
+        .edit-btn { background: #ffc107; color: #333; }
+        .add-btn { background: #28a745; color: white; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; border-radius: 24px; padding: 2rem; max-width: 500px; width: 90%; animation: slideIn 0.3s ease; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .close { font-size: 1.5rem; cursor: pointer; color: #999; }
+        .input-group { margin-bottom: 1rem; }
+        .input-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333; }
+        .input-group input, .input-group textarea, .input-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 12px; font-family: inherit; }
+        .submit-btn { width: 100%; padding: 0.75rem; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; }
+        .danger-btn { background: #dc3545; }
+        .warning-text { background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 12px; margin: 1rem 0; font-size: 0.9rem; }
+        
+        .media-preview { margin-top: 1rem; text-align: center; }
+        .media-preview img, .media-preview video { max-width: 100%; max-height: 200px; border-radius: 10px; }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); position: fixed; z-index: 100; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo"><h2><i class="fas fa-school"></i> St. Barnabas College</h2><p>Admin Portal</p></div>
+        <div class="admin-profile">
+            <div class="profile-image-container" onclick="openProfileModal()">
+                <img id="adminProfileImg" class="profile-avatar" src="">
+                <div class="edit-profile-icon"><i class="fas fa-camera"></i></div>
+            </div>
+            <div class="admin-name" id="adminName">Loading...</div>
+            <div class="admin-title" id="adminTitle">Administrator</div>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a class="nav-link active" data-section="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" data-section="gallery"><i class="fas fa-images"></i> Gallery Manager</a></li>
+            <li class="nav-item"><a class="nav-link" data-section="updates"><i class="fas fa-bullhorn"></i> School Updates</a></li>
+            <li class="nav-item"><a class="nav-link" data-section="admissions"><i class="fas fa-graduation-cap"></i> Admissions</a></li>
+            <li class="nav-item"><a class="nav-link" data-section="contact-messages"><i class="fas fa-envelope"></i> Contact Messages</a></li>
+            <li class="nav-item"><a class="nav-link" data-section="student-messages"><i class="fas fa-comments"></i> Student Messages</a></li>
+            <li class="nav-item"><a class="nav-link" data-section="announcements"><i class="fas fa-bullhorn"></i> Announcements</a></li>
+            <li class="nav-item"><a class="nav-link" data-section="posts"><i class="fas fa-newspaper"></i> Manage Posts</a></li>
+            <li class="nav-item"><a class="nav-link" data-section="users"><i class="fas fa-users"></i> Manage Users</a></li>
+            <li class="nav-item"><a class="nav-link" data-section="blocked"><i class="fas fa-ban"></i> Blocked Emails</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <!-- Dashboard Section -->
+        <div id="dashboardSection">
+            <h1>Admin Dashboard</h1>
+            <div class="stats-grid" id="statsGrid"></div>
+            <div class="data-table"><h3 style="padding:1rem;">Recent Activity</h3><div id="recentActivity"></div></div>
+        </div>
+        
+        <!-- Gallery Manager Section -->
+        <div id="gallerySection" style="display:none;">
+            <h1><i class="fas fa-images"></i> Gallery Manager</h1>
+            <button class="action-btn add-btn" onclick="openAddGalleryModal()" style="margin-bottom:1rem;"><i class="fas fa-plus"></i> Add New Media</button>
+            <div class="data-table" id="galleryTable"></div>
+        </div>
+        
+        <!-- School Updates Section -->
+        <div id="updatesSection" style="display:none;">
+            <h1><i class="fas fa-bullhorn"></i> School Updates</h1>
+            <button class="action-btn add-btn" onclick="openAddUpdateModal()" style="margin-bottom:1rem;"><i class="fas fa-plus"></i> Add New Update</button>
+            <div class="data-table" id="updatesTable"></div>
+        </div>
+        
+        <!-- Admissions Section -->
+        <div id="admissionsSection" style="display:none;">
+            <h1><i class="fas fa-graduation-cap"></i> Admission Inquiries</h1>
+            <div class="data-table" id="admissionsTable"></div>
+        </div>
+        
+        <!-- Contact Messages Section -->
+        <div id="contactMessagesSection" style="display:none;">
+            <h1><i class="fas fa-envelope"></i> Contact Form Messages</h1>
+            <div class="data-table" id="contactMessagesTable"></div>
+        </div>
+        
+        <!-- Student Messages Section -->
+        <div id="studentMessagesSection" style="display:none;">
+            <h1><i class="fas fa-comments"></i> Student Messages</h1>
+            <div class="data-table" id="studentMessagesTable"></div>
+        </div>
+        
+        <!-- Announcements Section -->
+        <div id="announcementsSection" style="display:none;">
+            <h1>Manage Announcements</h1>
+            <button class="action-btn reply-btn" onclick="showCreateAnnouncementModal()" style="margin-bottom:1rem;"><i class="fas fa-plus"></i> New Announcement</button>
+            <div class="data-table" id="announcementsTable"></div>
+        </div>
+        
+        <!-- Posts Section -->
+        <div id="postsSection" style="display:none;">
+            <h1>Manage Posts</h1>
+            <div class="data-table" id="postsTable"></div>
+        </div>
+        
+        <!-- Users Section -->
+        <div id="usersSection" style="display:none;">
+            <h1>Manage Users</h1>
+            <div class="data-table" id="usersTable"></div>
+        </div>
+        
+        <!-- Blocked Emails Section -->
+        <div id="blockedSection" style="display:none;">
+            <h1><i class="fas fa-ban"></i> Blocked Emails</h1>
+            <div class="data-table" id="blockedTable"></div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <div id="profileModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Update Profile</h2><span class="close" onclick="closeProfileModal()">&times;</span></div><div style="text-align:center;"><img id="profilePreview" style="width:120px;height:120px;border-radius:50%;object-fit:cover;"></div><input type="file" id="profileUpload" accept="image/*" onchange="previewProfileImage(this)" style="margin:1rem 0"><button class="submit-btn" onclick="saveProfileImage()">Save</button></div></div>
+    
+    <!-- Gallery Modal -->
+    <div id="galleryModal" class="modal"><div class="modal-content"><div class="modal-header"><h2 id="galleryModalTitle">Add Gallery Media</h2><span class="close" onclick="closeGalleryModal()">&times;</span></div>
+        <div class="input-group"><label>Media Type</label><select id="galleryMediaType"><option value="image">Image</option><option value="video">Video</option></select></div>
+        <div class="input-group"><label>Upload File</label><input type="file" id="galleryFile" accept="image/*,video/*" onchange="previewGalleryMedia(this)"></div>
+        <div id="galleryPreview" class="media-preview"></div>
+        <div class="input-group"><label>Caption</label><textarea id="galleryCaption" rows="3" placeholder="Enter caption..."></textarea></div>
+        <button class="submit-btn" onclick="saveGalleryMedia()">Save to Gallery</button>
+    </div></div>
+    
+    <!-- Update Modal -->
+    <div id="updateModal" class="modal"><div class="modal-content"><div class="modal-header"><h2 id="updateModalTitle">Add School Update</h2><span class="close" onclick="closeUpdateModal()">&times;</span></div>
+        <div class="input-group"><label>Title</label><input type="text" id="updateTitle" placeholder="Update title"></div>
+        <div class="input-group"><label>Description</label><textarea id="updateDescription" rows="4" placeholder="Update description..."></textarea></div>
+        <div class="input-group"><label>Category</label><select id="updateCategory"><option value="Graduation">Graduation</option><option value="Facility">Facility</option><option value="Sports">Sports</option><option value="Event">Event</option><option value="Scholarship">Scholarship</option><option value="Technology">Technology</option></select></div>
+        <div class="input-group"><label>Upload Image</label><input type="file" id="updateImage" accept="image/*" onchange="previewUpdateImage(this)"></div>
+        <div id="updatePreview" class="media-preview"></div>
+        <div class="input-group"><label>Badge Text</label><input type="text" id="updateBadge" placeholder="e.g., 🎓 Graduation 2024"></div>
+        <button class="submit-btn" onclick="saveSchoolUpdate()">Save Update</button>
+    </div></div>
+    
+    <div id="replyModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Reply to Message</h2><span class="close" onclick="closeReplyModal()">&times;</span></div><div id="replyMessagePreview" style="background:#f8f9fa;padding:1rem;border-radius:12px;margin-bottom:1rem;"></div><textarea id="replyText" rows="4" placeholder="Type your reply..." style="width:100%;padding:0.75rem;border:1px solid #ddd;border-radius:12px;"></textarea><button class="submit-btn" onclick="sendReply()" style="margin-top:1rem;">Send Reply</button></div></div>
+    <div id="deleteUserModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Delete User</h2><span class="close" onclick="closeDeleteModal()">&times;</span></div><div id="deleteUserInfo"></div><div class="warning-text">Warning: This action cannot be undone!</div><div class="input-group"><label>Type "DELETE" to confirm:</label><input type="text" id="confirmDeleteText"></div><button class="submit-btn danger-btn" onclick="confirmDeleteUser()">Delete Permanently</button></div></div>
+    <div id="unblockModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Unblock Email</h2><span class="close" onclick="closeUnblockModal()">&times;</span></div><div id="unblockInfo"></div><button class="submit-btn" onclick="confirmUnblock()">Unblock</button></div></div>
+    <div id="announcementModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Create Announcement</h2><span class="close" onclick="closeAnnouncementModal()">&times;</span></div><form id="announcementForm"><div class="input-group"><input type="text" id="announcementTitle" placeholder="Title" required></div><div class="input-group"><textarea id="announcementContent" rows="5" placeholder="Content" required></textarea></div><button type="submit" class="submit-btn">Publish</button></form></div></div>
+
+    <script>
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const isAdmin = localStorage.getItem('isAdmin') === 'true';
+        if (!currentUser || !isAdmin) window.location.href = 'admin-login.html';
+        
+        let currentReplyData = null;
+        let userToDelete = null;
+        let emailToUnblock = null;
+        let editingGalleryId = null;
+        let editingUpdateId = null;
+        
+        function initBlockedEmails() { if (!localStorage.getItem('blockedEmails')) localStorage.setItem('blockedEmails', JSON.stringify([])); }
+        function initGallery() { if (!localStorage.getItem('schoolGallery')) localStorage.setItem('schoolGallery', JSON.stringify([])); }
+        function initSchoolUpdates() { if (!localStorage.getItem('schoolUpdates')) localStorage.setItem('schoolUpdates', JSON.stringify([])); }
+        
+        function loadAdminProfile() {
+            const saved = localStorage.getItem(`profile_${currentUser.id}`);
+            const img = document.getElementById('adminProfileImg');
+            if (saved) { img.src = saved; img.style.display = 'block'; } else { img.style.display = 'none'; const ph = document.createElement('div'); ph.className = 'profile-avatar-placeholder'; ph.textContent = currentUser.name.charAt(0).toUpperCase(); document.querySelector('.profile-image-container').appendChild(ph); }
+            document.getElementById('adminName').textContent = currentUser.name;
+            document.getElementById('adminTitle').textContent = currentUser.title || 'Administrator';
+        }
+        
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.dataset.section;
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                ['dashboardSection','gallerySection','updatesSection','admissionsSection','contactMessagesSection','studentMessagesSection','announcementsSection','postsSection','usersSection','blockedSection'].forEach(s => document.getElementById(s).style.display = 'none');
+                if (section === 'dashboard') { document.getElementById('dashboardSection').style.display = 'block'; loadDashboard(); }
+                else if (section === 'gallery') { document.getElementById('gallerySection').style.display = 'block'; loadGalleryTable(); }
+                else if (section === 'updates') { document.getElementById('updatesSection').style.display = 'block'; loadUpdatesTable(); }
+                else if (section === 'admissions') { document.getElementById('admissionsSection').style.display = 'block'; loadAdmissionsTable(); }
+                else if (section === 'contact-messages') { document.getElementById('contactMessagesSection').style.display = 'block'; loadContactMessagesTable(); }
+                else if (section === 'student-messages') { document.getElementById('studentMessagesSection').style.display = 'block'; loadStudentMessagesTable(); }
+                else if (section === 'announcements') { document.getElementById('announcementsSection').style.display = 'block'; loadAnnouncementsTable(); }
+                else if (section === 'posts') { document.getElementById('postsSection').style.display = 'block'; loadPostsTable(); }
+                else if (section === 'users') { document.getElementById('usersSection').style.display = 'block'; loadUsersTable(); }
+                else if (section === 'blocked') { document.getElementById('blockedSection').style.display = 'block'; loadBlockedTable(); }
+            });
+        });
+        
+        function loadDashboard() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+            const studentMessages = JSON.parse(localStorage.getItem('messages') || '[]');
+            const admissions = JSON.parse(localStorage.getItem('admissionMessages') || '[]');
+            const contactMessages = JSON.parse(localStorage.getItem('contactMessages') || '[]');
+            const gallery = JSON.parse(localStorage.getItem('schoolGallery') || '[]');
+            const updates = JSON.parse(localStorage.getItem('schoolUpdates') || '[]');
+            const blocked = JSON.parse(localStorage.getItem('blockedEmails') || '[]');
+            const students = users.filter(u => u.role === 'student');
+            
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div><h3>${students.length}</h3><p>Students</p></div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-images"></i></div><div><h3>${gallery.length}</h3><p>Gallery Items</p></div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-bullhorn"></i></div><div><h3>${updates.length}</h3><p>Updates</p></div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-graduation-cap"></i></div><div><h3>${admissions.length}</h3><p>Admissions</p></div></div>
+            `;
+            
+            document.getElementById('recentActivity').innerHTML = `
+                <div style="padding:0 1rem 1rem 1rem;">
+                    <p><strong>Gallery Items:</strong> ${gallery.length} total</p>
+                    <p><strong>School Updates:</strong> ${updates.length} total</p>
+                    <p><strong>Admissions:</strong> ${admissions.length} inquiries</p>
+                    <p><strong>Contact Messages:</strong> ${contactMessages.length} messages</p>
+                </div>
+            `;
+        }
+        
+        // ============== GALLERY MANAGEMENT ==============
+        function loadGalleryTable() {
+            const gallery = JSON.parse(localStorage.getItem('schoolGallery') || '[]');
+            document.getElementById('galleryTable').innerHTML = `
+                <table style="width:100%">
+                    <thead><tr><th>Preview</th><th>Caption</th><th>Uploaded By</th><th>Date</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        ${gallery.map(item => `
+                            <tr>
+                                <td>${item.mediaType === 'video' ? `<video style="width:60px;height:60px;object-fit:cover;" src="${item.mediaUrl}"></video>` : `<img style="width:60px;height:60px;object-fit:cover;" src="${item.mediaUrl}">`}</td>
+                                <td>${escapeHtml(item.caption)}</td>
+                                <td>${escapeHtml(item.uploadedBy)}</td>
+                                <td>${new Date(item.date).toLocaleDateString()}</td>
+                                <td><button class="action-btn delete-btn" onclick="deleteGalleryItem('${item.id}')">Delete</button></td>
+                            </tr>
+                        `).join('')}
+                        ${gallery.length === 0 ? '<tr><td colspan="5" style="text-align:center;">No gallery items</td></tr>' : ''}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        let selectedGalleryFile = null;
+        function openAddGalleryModal() { editingGalleryId = null; document.getElementById('galleryModalTitle').textContent = 'Add Gallery Media'; document.getElementById('galleryMediaType').value = 'image'; document.getElementById('galleryCaption').value = ''; document.getElementById('galleryFile').value = ''; document.getElementById('galleryPreview').innerHTML = ''; selectedGalleryFile = null; document.getElementById('galleryModal').style.display = 'flex'; }
+        function closeGalleryModal() { document.getElementById('galleryModal').style.display = 'none'; }
+        
+        function previewGalleryMedia(input) {
+            if (input.files && input.files[0]) {
+                selectedGalleryFile = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const type = document.getElementById('galleryMediaType').value;
+                    document.getElementById('galleryPreview').innerHTML = type === 'video' ? 
+                        `<video controls style="max-width:100%; max-height:200px;"><source src="${e.target.result}"></video>` :
+                        `<img src="${e.target.result}" style="max-width:100%; max-height:200px;">`;
+                };
+                reader.readAsDataURL(selectedGalleryFile);
+            }
+        }
+        
+        function saveGalleryMedia() {
+            if (!selectedGalleryFile) { alert('Please select a file'); return; }
+            const caption = document.getElementById('galleryCaption').value;
+            if (!caption) { alert('Please enter a caption'); return; }
+            const mediaType = document.getElementById('galleryMediaType').value;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const gallery = JSON.parse(localStorage.getItem('schoolGallery') || '[]');
+                gallery.unshift({
+                    id: Date.now(),
+                    mediaType: mediaType,
+                    mediaUrl: e.target.result,
+                    caption: caption,
+                    uploadedBy: currentUser.name,
+                    date: new Date().toISOString()
+                });
+                localStorage.setItem('schoolGallery', JSON.stringify(gallery));
+                closeGalleryModal();
+                loadGalleryTable();
+                alert('Media added to gallery!');
+            };
+            reader.readAsDataURL(selectedGalleryFile);
+        }
+        
+        function deleteGalleryItem(id) {
+            if (confirm('Delete this gallery item?')) {
+                let gallery = JSON.parse(localStorage.getItem('schoolGallery') || '[]');
+                gallery = gallery.filter(item => item.id != id);
+                localStorage.setItem('schoolGallery', JSON.stringify(gallery));
+                loadGalleryTable();
+                alert('Gallery item deleted');
+            }
+        }
+        
+        // ============== SCHOOL UPDATES MANAGEMENT ==============
+        function loadUpdatesTable() {
+            const updates = JSON.parse(localStorage.getItem('schoolUpdates') || '[]');
+            document.getElementById('updatesTable').innerHTML = `
+                <table style="width:100%">
+                    <thead><tr><th>Image</th><th>Title</th><th>Category</th><th>Date</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        ${updates.map(update => `
+                            <tr>
+                                <td><img style="width:60px;height:60px;object-fit:cover;" src="${update.image}"></td>
+                                <td><strong>${escapeHtml(update.title)}</strong><br><small>${escapeHtml(update.description.substring(0,50))}...</small></td>
+                                <td>${escapeHtml(update.category)}</td>
+                                <td>${new Date(update.date).toLocaleDateString()}</td>
+                                <td>
+                                    <button class="action-btn edit-btn" onclick="editUpdate(${update.id})">Edit</button>
+                                    <button class="action-btn delete-btn" onclick="deleteUpdate(${update.id})">Delete</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                        ${updates.length === 0 ? '<tr><td colspan="5" style="text-align:center;">No school updates</td></tr>' : ''}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        let selectedUpdateImage = null;
+        function openAddUpdateModal() { editingUpdateId = null; document.getElementById('updateModalTitle').textContent = 'Add School Update'; document.getElementById('updateTitle').value = ''; document.getElementById('updateDescription').value = ''; document.getElementById('updateCategory').value = 'Graduation'; document.getElementById('updateBadge').value = ''; document.getElementById('updateImage').value = ''; document.getElementById('updatePreview').innerHTML = ''; selectedUpdateImage = null; document.getElementById('updateModal').style.display = 'flex'; }
+        
+        function editUpdate(id) {
+            const updates = JSON.parse(localStorage.getItem('schoolUpdates') || '[]');
+            const update = updates.find(u => u.id == id);
+            if (update) {
+                editingUpdateId = id;
+                document.getElementById('updateModalTitle').textContent = 'Edit School Update';
+                document.getElementById('updateTitle').value = update.title;
+                document.getElementById('updateDescription').value = update.description;
+                document.getElementById('updateCategory').value = update.category;
+                document.getElementById('updateBadge').value = update.badge;
+                document.getElementById('updatePreview').innerHTML = `<img src="${update.image}" style="max-width:100%; max-height:200px;">`;
+                selectedUpdateImage = update.image;
+                document.getElementById('updateModal').style.display = 'flex';
+            }
+        }
+        
+        function closeUpdateModal() { document.getElementById('updateModal').style.display = 'none'; }
+        
+        function previewUpdateImage(input) {
+            if (input.files && input.files[0]) {
+                selectedUpdateImage = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('updatePreview').innerHTML = `<img src="${e.target.result}" style="max-width:100%; max-height:200px;">`;
+                };
+                reader.readAsDataURL(selectedUpdateImage);
+            }
+        }
+        
+        function saveSchoolUpdate() {
+            const title = document.getElementById('updateTitle').value;
+            const description = document.getElementById('updateDescription').value;
+            const category = document.getElementById('updateCategory').value;
+            const badge = document.getElementById('updateBadge').value;
+            
+            if (!title || !description) { alert('Please fill all fields'); return; }
+            
+            const processSave = (imageUrl) => {
+                const updates = JSON.parse(localStorage.getItem('schoolUpdates') || '[]');
+                if (editingUpdateId) {
+                    const index = updates.findIndex(u => u.id == editingUpdateId);
+                    if (index !== -1) {
+                        updates[index] = { ...updates[index], title, description, category, badge, image: imageUrl };
+                        localStorage.setItem('schoolUpdates', JSON.stringify(updates));
+                        alert('Update edited successfully!');
+                    }
+                } else {
+                    updates.unshift({
+                        id: Date.now(),
+                        title: title,
+                        description: description,
+                        category: category,
+                        badge: badge,
+                        image: imageUrl,
+                        date: new Date().toISOString()
+                    });
+                    localStorage.setItem('schoolUpdates', JSON.stringify(updates));
+                    alert('Update added successfully!');
+                }
+                closeUpdateModal();
+                loadUpdatesTable();
+            };
+            
+            if (selectedUpdateImage && typeof selectedUpdateImage !== 'string') {
+                const reader = new FileReader();
+                reader.onload = function(e) { processSave(e.target.result); };
+                reader.readAsDataURL(selectedUpdateImage);
+            } else if (selectedUpdateImage && typeof selectedUpdateImage === 'string') {
+                processSave(selectedUpdateImage);
+            } else {
+                alert('Please select an image');
+            }
+        }
+        
+        function deleteUpdate(id) {
+            if (confirm('Delete this school update?')) {
+                let updates = JSON.parse(localStorage.getItem('schoolUpdates') || '[]');
+                updates = updates.filter(u => u.id != id);
+                localStorage.setItem('schoolUpdates', JSON.stringify(updates));
+                loadUpdatesTable();
+                alert('Update deleted');
+            }
+        }
+        
+        // ============== ADMISSIONS ==============
+        function loadAdmissionsTable() {
+            const admissions = JSON.parse(localStorage.getItem('admissionMessages') || '[]');
+            admissions.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+            document.getElementById('admissionsTable').innerHTML = `
+                <table><thead><tr><th>Student</th><th>Parent</th><th>Class</th><th>Year</th><th>Message</th><th>Contact</th><th>Date</th><th>Status</th></tr></thead>
+                <tbody>${admissions.map(a => `<tr><td><strong>${escapeHtml(a.sender)}</strong></td><td>${escapeHtml(a.parentName)}</td><td>${escapeHtml(a.currentClass)}</td><td>${escapeHtml(a.admissionYear)}</td><td>${escapeHtml(a.message.substring(0,60))}...</td><td>${escapeHtml(a.senderEmail)}<br>${escapeHtml(a.senderPhone)}</td><td>${new Date(a.timestamp).toLocaleString()}</td><td><span class="status-badge ${a.read ? 'status-read' : 'status-unread'}">${a.read ? 'Read' : 'New'}</span></td></tr>`).join('')}</tbody></table>
+                ${admissions.length === 0 ? '<p style="padding:1rem;text-align:center;">No admission inquiries</p>' : ''}
+            `;
+        }
+        
+        // ============== CONTACT MESSAGES ==============
+        function loadContactMessagesTable() {
+            const contactMessages = JSON.parse(localStorage.getItem('contactMessages') || '[]');
+            contactMessages.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+            document.getElementById('contactMessagesTable').innerHTML = `
+                <table><thead><tr><th>Name</th><th>Email</th><th>Subject</th><th>Message</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody>${contactMessages.map(c => `<tr><td><strong>${escapeHtml(c.sender)}</strong></td><td>${escapeHtml(c.email)}</td><td>${escapeHtml(c.subject)}</td><td>${escapeHtml(c.message.substring(0,80))}...</td><td>${new Date(c.timestamp).toLocaleString()}</td><td><span class="status-badge ${c.read ? 'status-read' : 'status-unread'}">${c.read ? 'Read' : 'New'}</span></td><td><button class="action-btn reply-btn" onclick="openContactReplyModal('${c.id}', '${escapeHtml(c.sender)}', '${escapeHtml(c.email)}', '${escapeHtml(c.message)}')">Reply</button></td></tr>`).join('')}</tbody></table>
+                ${contactMessages.length === 0 ? '<p style="padding:1rem;text-align:center;">No contact messages</p>' : ''}
+            `;
+        }
+        
+        function openContactReplyModal(id, name, email, message) {
+            currentReplyData = { type: 'contact', id: id, name: name, email: email };
+            document.getElementById('replyMessagePreview').innerHTML = `<p><strong>From:</strong> ${escapeHtml(name)} (${escapeHtml(email)})</p><p><strong>Message:</strong> ${escapeHtml(message)}</p>`;
+            document.getElementById('replyText').value = '';
+            document.getElementById('replyModal').style.display = 'flex';
+        }
+        
+        // ============== STUDENT MESSAGES ==============
+        function loadStudentMessagesTable() {
+            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            const myMessages = messages.filter(m => m.receiverId === currentUser.id).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+            document.getElementById('studentMessagesTable').innerHTML = `
+                <table><thead><tr><th>From</th><th>Message</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody>${myMessages.map(m => `<tr><td><strong>${escapeHtml(m.senderName)}</strong></td><td>${escapeHtml(m.text.substring(0,80))}...</td><td>${new Date(m.timestamp).toLocaleString()}</td><td><span class="status-badge ${m.read ? 'status-read' : 'status-unread'}">${m.read ? 'Read' : 'Unread'}</span></td><td><button class="action-btn reply-btn" onclick="openStudentReplyModal('${m.senderId}', '${escapeHtml(m.senderName)}', '${escapeHtml(m.text)}')">Reply</button></td></tr>`).join('')}</tbody></table>
+                ${myMessages.length === 0 ? '<p style="padding:1rem;text-align:center;">No student messages</p>' : ''}
+            `;
+        }
+        
+        function openStudentReplyModal(studentId, studentName, originalMessage) {
+            currentReplyData = { type: 'student', id: studentId, name: studentName };
+            document.getElementById('replyMessagePreview').innerHTML = `<p><strong>From:</strong> ${escapeHtml(studentName)}</p><p><strong>Message:</strong> ${escapeHtml(originalMessage)}</p>`;
+            document.getElementById('replyText').value = '';
+            document.getElementById('replyModal').style.display = 'flex';
+        }
+        
+        function sendReply() {
+            if (!currentReplyData) return;
+            const text = document.getElementById('replyText').value.trim();
+            if (!text) { alert('Please enter a reply'); return; }
+            
+            if (currentReplyData.type === 'contact') {
+                const contactMessages = JSON.parse(localStorage.getItem('contactMessages') || '[]');
+                const msg = contactMessages.find(c => c.id == currentReplyData.id);
+                if (msg) { msg.read = true; msg.reply = text; msg.repliedAt = new Date().toISOString(); localStorage.setItem('contactMessages', JSON.stringify(contactMessages)); }
+                alert(`Reply would be sent to ${currentReplyData.name} (${currentReplyData.email})`);
+                loadContactMessagesTable();
+            } else if (currentReplyData.type === 'student') {
+                const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+                messages.push({ id: Date.now(), text: text, senderId: currentUser.id, senderName: currentUser.name, receiverId: currentReplyData.id, receiverName: currentReplyData.name, timestamp: new Date().toISOString(), read: false });
+                localStorage.setItem('messages', JSON.stringify(messages));
+                alert(`Reply sent to ${currentReplyData.name}`);
+                loadStudentMessagesTable();
+            }
+            closeReplyModal();
+            loadDashboard();
+        }
+        
+        // ============== ANNOUNCEMENTS ==============
+        function loadAnnouncementsTable() {
+            const announcements = JSON.parse(localStorage.getItem('announcements')||'[]');
+            document.getElementById('announcementsTable').innerHTML = `</table><thead><tr><th>Title</th><th>Content</th><th>Date</th><th>Actions</th></tr></thead><tbody>${announcements.map(a => `<tr><td><strong>${escapeHtml(a.title)}</strong></td><td>${escapeHtml(a.content.substring(0,100))}...</td><td>${new Date(a.date).toLocaleDateString()}</td><td><button class="action-btn delete-btn" onclick="deleteAnnouncement(${a.id})">Delete</button></td>`).join('')}</tbody></table>`;
+        }
+        
+        function showCreateAnnouncementModal() { document.getElementById('announcementModal').style.display = 'flex'; }
+        function closeAnnouncementModal() { document.getElementById('announcementModal').style.display = 'none'; }
+        document.getElementById('announcementForm').addEventListener('submit', (e) => { e.preventDefault(); const a = JSON.parse(localStorage.getItem('announcements')||'[]'); a.push({ id: Date.now(), title: document.getElementById('announcementTitle').value, content: document.getElementById('announcementContent').value, createdBy: currentUser.name, date: new Date().toISOString() }); localStorage.setItem('announcements', JSON.stringify(a)); closeAnnouncementModal(); loadAnnouncementsTable(); alert('Announcement published'); });
+        function deleteAnnouncement(id) { if(confirm('Delete?')) { let a = JSON.parse(localStorage.getItem('announcements')||'[]'); a = a.filter(a=>a.id!==id); localStorage.setItem('announcements', JSON.stringify(a)); loadAnnouncementsTable(); alert('Deleted'); } }
+        
+        // ============== POSTS ==============
+        function loadPostsTable() {
+            const posts = JSON.parse(localStorage.getItem('posts')||'[]');
+            document.getElementById('postsTable').innerHTML = `</table><thead><tr><th>Author</th><th>Content</th><th>Date</th><th>Likes</th><th>Actions</th></tr></thead><tbody>${posts.map(p => `<tr><td>${escapeHtml(p.author)}</td><td>${escapeHtml(p.content.substring(0,50))}...</td><td>${new Date(p.date).toLocaleDateString()}</td><td>${p.likes}</td><td><button class="action-btn delete-btn" onclick="deletePost(${p.id})">Delete</button></td>`).join('')}</tbody></table>`;
+        }
+        function deletePost(id) { if(confirm('Delete post?')) { let p = JSON.parse(localStorage.getItem('posts')||'[]'); p = p.filter(p=>p.id!==id); localStorage.setItem('posts', JSON.stringify(p)); loadPostsTable(); alert('Post deleted'); } }
+        
+        // ============== USERS ==============
+        function loadUsersTable() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const students = users.filter(u => u.role === 'student');
+            document.getElementById('usersTable').innerHTML = `</table><thead><tr><th>Name</th><th>Email</th><th>Student ID</th><th>Phone</th><th>Actions</th></tr></thead><tbody>${students.map(u => `<tr><td>${escapeHtml(u.name)}</td><td>${escapeHtml(u.email)}</td><td>${u.studentId||'N/A'}</td><td>${u.phone||'N/A'}</td><td><button class="action-btn delete-btn" onclick="openDeleteModal('${u.id}','${escapeHtml(u.name)}','${escapeHtml(u.email)}')">Delete</button></td>`).join('')}</tbody></table>`;
+        }
+        
+        function openDeleteModal(id, name, email) { userToDelete = { id, name, email }; document.getElementById('deleteUserInfo').innerHTML = `<p><strong>User:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p>`; document.getElementById('confirmDeleteText').value = ''; document.getElementById('deleteUserModal').style.display = 'flex'; }
+        function closeDeleteModal() { document.getElementById('deleteUserModal').style.display = 'none'; userToDelete = null; }
+        function confirmDeleteUser() {
+            if(document.getElementById('confirmDeleteText').value !== 'DELETE') { alert('Type "DELETE" to confirm'); return; }
+            if(userToDelete) {
+                let blocked = JSON.parse(localStorage.getItem('blockedEmails')||'[]');
+                if(!blocked.some(b=>b.email===userToDelete.email)) blocked.push({ email: userToDelete.email, name: userToDelete.name, blockedAt: new Date().toISOString(), blockedBy: currentUser.name });
+                localStorage.setItem('blockedEmails', JSON.stringify(blocked));
+                let users = JSON.parse(localStorage.getItem('users')||'[]'); users = users.filter(u=>u.id!=userToDelete.id); localStorage.setItem('users', JSON.stringify(users));
+                let posts = JSON.parse(localStorage.getItem('posts')||'[]'); posts = posts.filter(p=>p.authorId!=userToDelete.id); localStorage.setItem('posts', JSON.stringify(posts));
+                let messages = JSON.parse(localStorage.getItem('messages')||'[]'); messages = messages.filter(m=>m.senderId!=userToDelete.id && m.receiverId!=userToDelete.id); localStorage.setItem('messages', JSON.stringify(messages));
+                localStorage.removeItem(`profile_${userToDelete.id}`);
+                alert(`User ${userToDelete.name} deleted permanently`);
+                closeDeleteModal(); loadUsersTable(); loadDashboard(); if(document.getElementById('blockedSection').style.display !== 'none') loadBlockedTable();
+            }
+        }
+        
+        // ============== BLOCKED EMAILS ==============
+        function loadBlockedTable() {
+            const blocked = JSON.parse(localStorage.getItem('blockedEmails')||'[]');
+            document.getElementById('blockedTable').innerHTML = `<table><thead><tr><th>Email</th><th>Name</th><th>Blocked Date</th><th>Blocked By</th><th>Actions</th></tr></thead><tbody>${blocked.map(b => `<tr><td>${escapeHtml(b.email)}</td><td>${escapeHtml(b.name||'Unknown')}</td><td>${new Date(b.blockedAt).toLocaleString()}</td><td>${escapeHtml(b.blockedBy||'Admin')}</td><td><button class="action-btn view-btn" onclick="openUnblockModal('${b.email}','${escapeHtml(b.name||'Unknown')}')">Unblock</button></td>`).join('')}</tbody></table>`;
+        }
+        
+        function openUnblockModal(email, name) { emailToUnblock = email; document.getElementById('unblockInfo').innerHTML = `<p><strong>Email:</strong> ${email}</p><p><strong>Name:</strong> ${name}</p>`; document.getElementById('unblockModal').style.display = 'flex'; }
+        function closeUnblockModal() { document.getElementById('unblockModal').style.display = 'none'; emailToUnblock = null; }
+        function confirmUnblock() { if(emailToUnblock) { let blocked = JSON.parse(localStorage.getItem('blockedEmails')||'[]'); blocked = blocked.filter(b=>b.email!==emailToUnblock); localStorage.setItem('blockedEmails', JSON.stringify(blocked)); alert(`Email ${emailToUnblock} unblocked`); closeUnblockModal(); loadBlockedTable(); } }
+        
+        // ============== PROFILE ==============
+        function openProfileModal() { const preview = document.getElementById('profilePreview'); const saved = localStorage.getItem(`profile_${currentUser.id}`); if(saved) preview.src = saved; document.getElementById('profileModal').style.display = 'flex'; }
+        function closeProfileModal() { document.getElementById('profileModal').style.display = 'none'; }
+        function previewProfileImage(input) { if(input.files && input.files[0]) { const reader = new FileReader(); reader.onload = e => document.getElementById('profilePreview').src = e.target.result; reader.readAsDataURL(input.files[0]); } }
+        function saveProfileImage() { const preview = document.getElementById('profilePreview'); if(preview.src && preview.src !== '') { localStorage.setItem(`profile_${currentUser.id}`, preview.src); currentUser.profileImage = preview.src; localStorage.setItem('currentUser', JSON.stringify(currentUser)); loadAdminProfile(); closeProfileModal(); alert('Profile updated'); } }
+        
+        function closeReplyModal() { document.getElementById('replyModal').style.display = 'none'; currentReplyData = null; }
+        function escapeHtml(t) { if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+        function logout() { localStorage.removeItem('currentUser'); localStorage.removeItem('isAdmin'); window.location.href='index.html'; }
+        
+        window.onclick = function(e) {
+            if(e.target===document.getElementById('deleteUserModal')) closeDeleteModal();
+            if(e.target===document.getElementById('unblockModal')) closeUnblockModal();
+            if(e.target===document.getElementById('replyModal')) closeReplyModal();
+            if(e.target===document.getElementById('announcementModal')) closeAnnouncementModal();
+            if(e.target===document.getElementById('profileModal')) closeProfileModal();
+            if(e.target===document.getElementById('galleryModal')) closeGalleryModal();
+            if(e.target===document.getElementById('updateModal')) closeUpdateModal();
+        };
+        
+        initBlockedEmails();
+        initGallery();
+        initSchoolUpdates();
+        loadAdminProfile();
+        loadDashboard();
+    </script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - St. Barnabas College</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .admin-login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .admin-header { text-align: center; margin-bottom: 30px; }
+        .admin-header i { font-size: 60px; color: #667eea; margin-bottom: 20px; }
+        .admin-header h1 { color: #333; font-size: 24px; }
+        .admin-header p { color: #666; margin-top: 10px; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; }
+        .password-container { position: relative; }
+        .password-container input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding-right: 45px;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #999;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .login-btn:hover { transform: translateY(-2px); }
+        .back-link { text-align: center; margin-top: 20px; }
+        .back-link a { color: #667eea; text-decoration: none; }
+        .error-message, .success-message {
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .error-message { background: #f8d7da; color: #721c24; }
+        .success-message { background: #d4edda; color: #155724; }
+        .admin-credentials {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .admin-credentials h3 { font-size: 14px; color: #666; margin-bottom: 10px; }
+        .credential-item { font-size: 12px; padding: 5px 0; color: #666; display: flex; justify-content: space-between; align-items: center; }
+        .credential-item strong { color: #333; }
+        .copy-btn {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-login-container">
+        <div class="admin-header">
+            <i class="fas fa-user-shield"></i>
+            <h1>Admin Portal</h1>
+            <p>St. Barnabas College Migadde</p>
+        </div>
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+        <form id="adminLoginForm">
+            <div class="input-group">
+                <label><i class="fas fa-envelope"></i> Admin Email</label>
+                <input type="email" id="adminEmail" placeholder="headteacher@stbarnabas.sc.ug" required>
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-lock"></i> Password</label>
+                <div class="password-container">
+                    <input type="password" id="adminPassword" placeholder="Enter password" required>
+                    <span class="toggle-password" onclick="togglePassword('adminPassword', this)"><i class="fas fa-eye"></i></span>
+                </div>
+            </div>
+            <button type="submit" class="login-btn"><i class="fas fa-sign-in-alt"></i> Login as Admin</button>
+        </form>
+        <div class="back-link"><a href="index.html"><i class="fas fa-arrow-left"></i> Back to Student Portal</a></div>
+      
+    </div>
+    <script>
+        function togglePassword(inputId, element) {
+            const input = document.getElementById(inputId);
+            const icon = element.querySelector('i');
+            if (input.type === 'password') { input.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); }
+            else { input.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); }
+        }
+        function copyCredentials(email, password) {
+            navigator.clipboard.writeText(`Email: ${email}\nPassword: ${password}`);
+            showMessage('Credentials copied!', 'success');
+        }
+        function showMessage(message, type) {
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            if (type === 'success') { successDiv.textContent = message; successDiv.style.display = 'block'; setTimeout(() => successDiv.style.display = 'none', 3000); }
+            else { errorDiv.textContent = message; errorDiv.style.display = 'block'; setTimeout(() => errorDiv.style.display = 'none', 3000); }
+        }
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const admin = users.find(u => u.email === email && u.password === password && (u.role === 'headteacher' || u.role === 'principal' || u.role === 'director' || u.role === 'dos'));
+            if (admin) {
+                localStorage.setItem('currentUser', JSON.stringify(admin));
+                localStorage.setItem('isAdmin', 'true');
+                showMessage('Login successful! Redirecting...', 'success');
+                setTimeout(() => window.location.href = 'admin-dashboard.html', 1500);
+            } else showMessage('Invalid admin credentials!', 'error');
+        });
+    </script>
+</body>
+</html>

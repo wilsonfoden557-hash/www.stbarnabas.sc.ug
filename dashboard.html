@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - St. Barnabas College</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f0f2f5;
+        }
+
+        :root {
+            --primary-color: #4ecff7;
+            --primary-dark: #2ba0c4;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            padding: 2rem;
+            color: white;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        .logo h2 {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .student-profile {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+
+        .profile-image-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+
+        .profile-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+        }
+
+        .profile-avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            border: 3px solid white;
+        }
+
+        .edit-profile-icon {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--primary-color);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+
+        .student-name {
+            font-weight: 600;
+            margin-top: 0.75rem;
+        }
+
+        .student-role {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: rgba(255,255,255,0.9);
+            border-radius: 10px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .nav-link i {
+            width: 24px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon i {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        /* Create Post */
+        .create-post {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .post-input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 1rem;
+        }
+
+        .post-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .option-btn {
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6c757d;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            background: #f0f2f5;
+        }
+
+        .post-submit-btn {
+            margin-left: auto;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        /* Media Preview */
+        .media-preview {
+            display: none;
+            position: relative;
+            margin-bottom: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .media-preview img, .media-preview video {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+        }
+
+        .remove-media {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        /* Post Card */
+        .posts-container {
+            display: block;
+        }
+
+        .post-card {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .post-author h4 {
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .post-date {
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+        .post-content {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .post-media {
+            margin-top: 1rem;
+        }
+
+        .post-media img, .post-media video {
+            width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .post-stats {
+            display: flex;
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+            margin-top: 1rem;
+        }
+
+        .post-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6c757d;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .post-stat:hover {
+            color: var(--primary-dark);
+        }
+
+        .post-stat.liked {
+            color: #f44336;
+        }
+
+        .comments-section {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        .comment {
+            padding: 0.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment strong {
+            color: var(--primary-dark);
+        }
+
+        .add-comment {
+            margin-top: 1rem;
+        }
+
+        .add-comment input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+        }
+
+        .add-comment button {
+            margin-top: 0.5rem;
+            padding: 0.25rem 1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        /* Announcements */
+        .announcements-container {
+            display: none;
+        }
+
+        .announcements-container.active {
+            display: block;
+        }
+
+        .announcement-card {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 100;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-school"></i>
+                <h2>St. Barnabas College</h2>
+            </div>
+        </div>
+        
+        <div class="student-profile">
+            <div class="profile-image-container" onclick="openProfileModal()">
+                <img id="studentProfileImg" class="profile-avatar" src="">
+                <div class="edit-profile-icon"><i class="fas fa-camera"></i></div>
+            </div>
+            <div class="student-name" id="studentName">Loading...</div>
+            <div class="student-role" id="studentRole">Student</div>
+        </div>
+        
+        <ul class="nav-menu">
+            <li class="nav-item"><a class="nav-link active" data-section="posts"><i class="fas fa-newspaper"></i> Feed</a></li>
+            <li class="nav-item"><a class="nav-link" data-section="announcements"><i class="fas fa-bullhorn"></i> Announcements</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-newspaper"></i></div><div><h3 id="postCount">0</h3><p>My Posts</p></div></div>
+        </div>
+        
+        <!-- Posts Section -->
+        <div id="postsSection" class="posts-container">
+            <div class="create-post">
+                <textarea class="post-input" id="postContent" rows="3" placeholder="What's on your mind?"></textarea>
+                
+                <div id="mediaPreview" class="media-preview">
+                    <div id="imagePreview"><img id="previewImage"></div>
+                    <div id="videoPreview"><video id="previewVideo" controls></video></div>
+                    <button class="remove-media" onclick="removeMedia()">×</button>
+                </div>
+                
+                <div class="post-options">
+                    <button class="option-btn" onclick="document.getElementById('imageUpload').click()"><i class="fas fa-image"></i> Photo</button>
+                    <button class="option-btn" onclick="document.getElementById('videoUpload').click()"><i class="fas fa-video"></i> Video</button>
+                    <button class="option-btn" onclick="document.getElementById('fileUpload').click()"><i class="fas fa-file"></i> File (1GB max)</button>
+                    <button class="post-submit-btn" onclick="createPost()">Post</button>
+                </div>
+                
+                <input type="file" id="imageUpload" accept="image/*" style="display:none" onchange="handleImageUpload(this)">
+                <input type="file" id="videoUpload" accept="video/*" style="display:none" onchange="handleVideoUpload(this)">
+                <input type="file" id="fileUpload" style="display:none" onchange="handleFileUpload(this)">
+            </div>
+            <div id="postsList"></div>
+        </div>
+        
+        <!-- Announcements Section -->
+        <div id="announcementsSection" class="announcements-container">
+            <div id="announcementsList"></div>
+        </div>
+    </div>
+    
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom:1rem">Update Profile Picture</h2>
+            <div style="text-align:center; margin-bottom:1rem">
+                <img id="profilePreview" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:3px solid #4ecff7;">
+            </div>
+            <input type="file" id="profileUpload" accept="image/*" onchange="previewProfileImage(this)" style="margin-bottom:1rem; width:100%">
+            <button onclick="saveProfileImage()" style="width:100%; padding:0.75rem; background:#4ecff7; color:white; border:none; border-radius:12px; cursor:pointer;">Save</button>
+            <button onclick="closeProfileModal()" style="width:100%; margin-top:0.5rem; padding:0.75rem; background:#2e2e2e; color:white; border:none; border-radius:12px; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // Create default user if none exists
+        if (!localStorage.getItem('currentUser')) {
+            const defaultUser = {
+                id: Date.now(),
+                name: 'Guest Student',
+                email: 'guest@stbarnabas.sc.ug',
+                role: 'student',
+                createdAt: new Date().toISOString()
+            };
+            localStorage.setItem('currentUser', JSON.stringify(defaultUser));
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            if (!users.find(u => u.email === 'guest@stbarnabas.sc.ug')) {
+                users.push(defaultUser);
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+        }
+        
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        let currentMediaType = null;
+        let currentMediaData = null;
+        
+        function loadStudentProfile() {
+            const savedProfile = localStorage.getItem(`profile_${currentUser.id}`);
+            const profileImg = document.getElementById('studentProfileImg');
+            if (savedProfile) {
+                profileImg.src = savedProfile;
+                profileImg.style.display = 'block';
+            } else {
+                profileImg.style.display = 'none';
+                const placeholder = document.createElement('div');
+                placeholder.className = 'profile-avatar-placeholder';
+                placeholder.textContent = currentUser.name.charAt(0).toUpperCase();
+                document.querySelector('.profile-image-container').appendChild(placeholder);
+            }
+            document.getElementById('studentName').textContent = currentUser.name;
+            document.getElementById('studentRole').textContent = 'Student';
+        }
+        
+        // Navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.dataset.section;
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                
+                if (section === 'posts') {
+                    document.getElementById('postsSection').style.display = 'block';
+                    document.getElementById('announcementsSection').classList.remove('active');
+                    loadPosts();
+                } else if (section === 'announcements') {
+                    document.getElementById('postsSection').style.display = 'none';
+                    document.getElementById('announcementsSection').classList.add('active');
+                    loadAnnouncements();
+                }
+            });
+        });
+        
+        // File upload handlers (up to 1GB)
+        function handleImageUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (file.size > 1024 * 1024 * 1024) { alert('File too large! Maximum 1GB'); return; }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentMediaType = 'image';
+                    currentMediaData = e.target.result;
+                    document.getElementById('previewImage').src = currentMediaData;
+                    document.getElementById('imagePreview').style.display = 'block';
+                    document.getElementById('videoPreview').style.display = 'none';
+                    document.getElementById('mediaPreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function handleVideoUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (file.size > 1024 * 1024 * 1024) { alert('File too large! Maximum 1GB'); return; }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentMediaType = 'video';
+                    currentMediaData = e.target.result;
+                    document.getElementById('previewVideo').src = currentMediaData;
+                    document.getElementById('videoPreview').style.display = 'block';
+                    document.getElementById('imagePreview').style.display = 'none';
+                    document.getElementById('mediaPreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function handleFileUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (file.size > 1024 * 1024 * 1024) { alert('File too large! Maximum 1GB'); return; }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentMediaType = 'file';
+                    currentMediaData = { name: file.name, type: file.type, size: file.size, data: e.target.result };
+                    document.getElementById('mediaPreview').style.display = 'block';
+                    document.getElementById('imagePreview').style.display = 'none';
+                    document.getElementById('videoPreview').style.display = 'none';
+                    document.getElementById('mediaPreview').innerHTML = `
+                        <div style="background:#e9ecef; padding:1rem; border-radius:10px; text-align:center;">
+                            <i class="fas fa-file" style="font-size:2rem; color:#4ecff7;"></i>
+                            <p><strong>${file.name}</strong></p>
+                            <p>${(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                            <button class="remove-media" onclick="removeMedia()">×</button>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function removeMedia() {
+            currentMediaType = null;
+            currentMediaData = null;
+            document.getElementById('mediaPreview').style.display = 'none';
+            document.getElementById('previewImage').src = '';
+            document.getElementById('previewVideo').src = '';
+        }
+        
+        function createPost() {
+            const content = document.getElementById('postContent').value;
+            if (!content.trim() && !currentMediaData) {
+                alert('Please enter content or add media');
+                return;
+            }
+            
+            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+            const newPost = {
+                id: Date.now(),
+                content: content.trim(),
+                author: currentUser.name,
+                authorId: currentUser.id,
+                date: new Date().toISOString(),
+                likes: 0,
+                liked: false,
+                comments: [],
+                mediaType: currentMediaType,
+                mediaUrl: currentMediaType === 'file' ? currentMediaData : currentMediaData,
+                fileName: currentMediaType === 'file' ? currentMediaData.name : null
+            };
+            
+            posts.unshift(newPost);
+            localStorage.setItem('posts', JSON.stringify(posts));
+            
+            document.getElementById('postContent').value = '';
+            removeMedia();
+            loadPosts();
+            updateStats();
+            alert('Post created successfully!');
+        }
+        
+        function loadPosts() {
+            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+            const postsList = document.getElementById('postsList');
+            
+            if (posts.length === 0) {
+                postsList.innerHTML = '<p style="text-align:center;color:#6c757d;">No posts yet. Be the first to share!</p>';
+                return;
+            }
+            
+            postsList.innerHTML = posts.map(post => `
+                <div class="post-card" data-id="${post.id}">
+                    <div class="post-header">
+                        <div class="post-avatar">${post.author.charAt(0).toUpperCase()}</div>
+                        <div class="post-author">
+                            <h4>${escapeHtml(post.author)}</h4>
+                            <div class="post-date">${formatDate(post.date)}</div>
+                        </div>
+                    </div>
+                    <div class="post-content">${escapeHtml(post.content)}</div>
+                    ${post.mediaType === 'image' ? `<div class="post-media"><img src="${post.mediaUrl}" onclick="openImageModal('${post.mediaUrl}')"></div>` : ''}
+                    ${post.mediaType === 'video' ? `<div class="post-media"><video controls src="${post.mediaUrl}"></video></div>` : ''}
+                    ${post.mediaType === 'file' ? `<div class="post-media"><div style="background:#f0f2f5; padding:1rem; border-radius:10px;"><i class="fas fa-file" style="font-size:2rem; color:#4ecff7;"></i><p><strong>${escapeHtml(post.fileName)}</strong></p><a href="${post.mediaUrl.data}" download="${escapeHtml(post.fileName)}" style="color:#4ecff7;">Download File</a></div></div>` : ''}
+                    <div class="post-stats">
+                        <div class="post-stat ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})"><i class="fas fa-heart"></i> ${post.likes}</div>
+                        <div class="post-stat" onclick="toggleComments(${post.id})"><i class="fas fa-comment"></i> ${post.comments.length}</div>
+                    </div>
+                    <div id="comments-${post.id}" class="comments-section" style="display:none;">
+                        <div class="comments-list">${post.comments.map(c => `<div class="comment"><strong>${escapeHtml(c.author)}</strong><p>${escapeHtml(c.text)}</p><small>${formatDate(c.date)}</small></div>`).join('')}</div>
+                        <div class="add-comment"><input type="text" id="comment-${post.id}" placeholder="Write a comment..."><button onclick="addComment(${post.id})">Comment</button></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function toggleLike(postId) {
+            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+            const post = posts.find(p => p.id === postId);
+            if (post) {
+                post.liked = !post.liked;
+                post.likes += post.liked ? 1 : -1;
+                localStorage.setItem('posts', JSON.stringify(posts));
+                loadPosts();
+            }
+        }
+        
+        function toggleComments(postId) {
+            const section = document.getElementById(`comments-${postId}`);
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        function addComment(postId) {
+            const input = document.getElementById(`comment-${postId}`);
+            const text = input.value.trim();
+            if (!text) return;
+            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+            const post = posts.find(p => p.id === postId);
+            if (post) {
+                post.comments.push({ author: currentUser.name, text: text, date: new Date().toISOString() });
+                localStorage.setItem('posts', JSON.stringify(posts));
+                input.value = '';
+                loadPosts();
+            }
+        }
+        
+        function openImageModal(imageUrl) {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:10000;display:flex;justify-content:center;align-items:center;cursor:pointer';
+            modal.onclick = () => modal.remove();
+            modal.innerHTML = `<img src="${imageUrl}" style="max-width:90%;max-height:90%">`;
+            document.body.appendChild(modal);
+        }
+        
+        function loadAnnouncements() {
+            const announcements = JSON.parse(localStorage.getItem('announcements') || '[]');
+            const list = document.getElementById('announcementsList');
+            if (announcements.length === 0) {
+                list.innerHTML = '<p style="text-align:center;color:#6c757d;">No announcements yet.</p>';
+                return;
+            }
+            list.innerHTML = announcements.map(a => `
+                <div class="announcement-card">
+                    <div class="post-header">
+                        <div class="post-avatar" style="background:linear-gradient(135deg,#4ecff7,#2ba0c4)"><i class="fas fa-bullhorn"></i></div>
+                        <div><h4>School Administration</h4><div class="post-date">${new Date(a.date).toLocaleDateString()}</div></div>
+                    </div>
+                    <div class="post-content"><strong>${escapeHtml(a.title)}</strong><br>${escapeHtml(a.content)}</div>
+                </div>
+            `).join('');
+        }
+        
+        function updateStats() {
+            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+            const myPosts = posts.filter(p => p.authorId === currentUser.id).length;
+            document.getElementById('postCount').textContent = myPosts;
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            if (diff < 60) return 'just now';
+            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+            return date.toLocaleDateString();
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Profile functions
+        function openProfileModal() {
+            const preview = document.getElementById('profilePreview');
+            const saved = localStorage.getItem(`profile_${currentUser.id}`);
+            if (saved) preview.src = saved;
+            document.getElementById('profileModal').style.display = 'flex';
+        }
+        
+        function closeProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+        
+        function previewProfileImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => document.getElementById('profilePreview').src = e.target.result;
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        function saveProfileImage() {
+            const preview = document.getElementById('profilePreview');
+            if (preview.src && preview.src !== '') {
+                localStorage.setItem(`profile_${currentUser.id}`, preview.src);
+                currentUser.profileImage = preview.src;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                loadStudentProfile();
+                closeProfileModal();
+                alert('Profile picture updated!');
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('isAdmin');
+            window.location.href = 'index.html';
+        }
+        
+        function initDemoData() {
+            if (JSON.parse(localStorage.getItem('announcements') || '[]').length === 0) {
+                localStorage.setItem('announcements', JSON.stringify([
+                    { id: 1, title: "School Reopening", content: "School reopens on January 15th, 2025.", createdBy: "Head Teacher", date: new Date().toISOString() }
+                ]));
+            }
+        }
+        
+        loadStudentProfile();
+        initDemoData();
+        updateStats();
+        loadPosts();
+        loadAnnouncements();
+        
+        document.getElementById('postsSection').style.display = 'block';
+    </script>
+</body>
+</html>

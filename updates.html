@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Updates - St. Barnabas College Migadde</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f5f5f5;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .school-badge {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #4ecff7;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .logo span {
+            color: #4ecff7;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #666;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #4ecff7;
+        }
+
+        .portal-btn {
+            background: linear-gradient(135deg, #4ecff7 0%, #2ba0c4 100%);
+            color: white !important;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #4ecff7 0%, #2ba0c4 100%);
+            color: white;
+            padding: 120px 2rem 4rem;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .updates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .update-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .update-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .update-image {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .update-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .update-card:hover .update-image img {
+            transform: scale(1.05);
+        }
+
+        .update-category {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: linear-gradient(135deg, #4ecff7, #2ba0c4);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+        }
+
+        .update-content {
+            padding: 1.5rem;
+        }
+
+        .update-date {
+            color: #4ecff7;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .update-title {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 0.75rem;
+        }
+
+        .update-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .update-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .update-author {
+            font-size: 0.75rem;
+            color: #999;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .update-badge {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+        }
+
+        .footer {
+            background: #1a1a2e;
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .updates-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="https://via.placeholder.com/50x50/4ecff7/white?text=SBC" alt="School Badge" class="school-badge">
+                <h1>St. Barnabas <span>College</span></h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">Learn More</a>
+                <a href="updates.html" class="active">Updates</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="admissions.html">Admissions</a>
+                <a href="contact.html">Contact</a>
+                <a href="dashboard.html" class="portal-btn">Student Portal</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="page-header">
+        <h1>School Updates</h1>
+        <p>Stay informed with the latest news and events from St. Barnabas College</p>
+    </section>
+
+    <div class="container">
+        <div class="updates-grid" id="updatesGrid"></div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <h3>St. Barnabas College Migadde</h3>
+            <p>Location: 18 miles along Bombo Road</p>
+            <p>P.O. Box 33723, Kampala, Uganda</p>
+            <p>Facebook: @st.barnabascollegemigadde</p>
+            <p>X (formerly Twitter): @migaddest</p>
+            <p>Phone: +256 702 336 060 / 704 496 736 / 772 681 570 | Email: st.barnabascollegemigadde@gmail.com</p>
+            <P>Programmed by: Nelly Wilson / Contact: 0745 601 939 </P>
+            <p style="margin-top: 1rem;">© 2025 St. Barnabas College Migadde. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const schoolUpdates = [
+            {
+                id: 1,
+                title: "75th Graduation Ceremony",
+                description: "We celebrated the 75th graduation ceremony where 350 students received their certificates. The event was graced by the Minister of Education as the guest of honor.",
+                image: "https://picsum.photos/id/100/400/250",
+                date: "December 15, 2024",
+                category: "Graduation",
+                author: "Head Teacher",
+                badge: "🎓 Graduation 2024"
+            },
+            {
+                id: 2,
+                title: "New Science Laboratory Inaugurated",
+                description: "We proudly inaugurated a state-of-the-art science laboratory equipped with modern equipment for Physics, Chemistry, and Biology experiments.",
+                image: "https://picsum.photos/id/42/400/250",
+                date: "January 10, 2025",
+                category: "Facility",
+                author: "Director of Studies",
+                badge: "🔬 New Facility"
+            },
+            {
+                id: 3,
+                title: "Inter-School Sports Competition Victory",
+                description: "Our school emerged overall winners in the annual inter-school sports competition. We won gold medals in football, athletics, and basketball.",
+                image: "https://picsum.photos/id/29/400/250",
+                date: "February 5, 2025",
+                category: "Sports",
+                author: "Sports Department",
+                badge: "🏆 Champions"
+            },
+            {
+                id: 4,
+                title: "Parent-Teacher Conference 2025",
+                description: "Annual Parent-Teacher conference will be held on March 15th, 2025. Parents are invited to discuss their children's progress.",
+                image: "https://picsum.photos/id/88/400/250",
+                date: "February 20, 2025",
+                category: "Event",
+                author: "Principal",
+                badge: "📅 Upcoming Event"
+            },
+            {
+                id: 5,
+                title: "Scholarship Program Launch",
+                description: "St. Barnabas College launches a new scholarship program for outstanding students. Applications are open for the 2025 academic year.",
+                image: "https://picsum.photos/id/51/400/250",
+                date: "February 25, 2025",
+                category: "Scholarship",
+                author: "Director",
+                badge: "🎓 Scholarship"
+            },
+            {
+                id: 6,
+                title: "Digital Learning Initiative",
+                description: "School introduces digital learning platforms to enhance remote learning capabilities. Students will now have access to online resources.",
+                image: "https://picsum.photos/id/0/400/250",
+                date: "March 1, 2025",
+                category: "Technology",
+                author: "Head Teacher",
+                badge: "💻 Digital Learning"
+            }
+        ];
+
+        function loadUpdates() {
+            const grid = document.getElementById('updatesGrid');
+            grid.innerHTML = schoolUpdates.map(update => `
+                <div class="update-card">
+                    <div class="update-image">
+                        <img src="${update.image}" alt="${update.title}">
+                        <div class="update-category">${update.category}</div>
+                    </div>
+                    <div class="update-content">
+                        <div class="update-date"><i class="fas fa-calendar-alt"></i> ${update.date}</div>
+                        <h3 class="update-title">${update.title}</h3>
+                        <p class="update-description">${update.description}</p>
+                        <div class="update-footer">
+                            <div class="update-author"><i class="fas fa-user"></i> ${update.author}</div>
+                            <div class="update-badge">${update.badge}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadSchoolBadge() {
+            const savedBadge = localStorage.getItem('schoolBadge');
+            if (savedBadge) {
+                document.querySelector('.school-badge').src = savedBadge;
+            }
+        }
+        
+        loadSchoolBadge();
+        loadUpdates();
+    </script>
+</body>
+</html>
